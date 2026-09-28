@@ -1,593 +1,581 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sobat Warga — Command Center</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sobat Warga — Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
-        /* Sidebar */
-        .sidebar-link { transition: all 0.18s ease; }
-        .sidebar-link.active {
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(99,102,241,0.4);
-        }
-        .sidebar-link:not(.active):hover { background: rgba(99,102,241,0.12); color: #e0e7ff; }
+    .sidebar-link { transition: all 0.18s ease; }
+    .sidebar-link.active {
+      background: rgba(99,102,241,0.25);
+      color: #fff;
+      font-weight: 700;
+    }
+    .sidebar-link:not(.active):hover { background: rgba(99,102,241,0.12); color: #e0e7ff; }
 
-        /* Cards */
-        .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.09); }
+    .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.09); }
 
-        /* Pulse animation for danger card */
-        .pulse-ring {
-            animation: pulse-ring 2.2s ease-in-out infinite;
-        }
-        @keyframes pulse-ring {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.45); }
-            50%       { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
-        }
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+      70%  { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+      100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+    }
+    .pulse-ring { animation: pulse-ring 2s infinite; }
 
-        /* Table */
-        .tbl-row { transition: background 0.15s ease; }
-        .tbl-row:hover { background-color: #f5f7ff; }
+    .tbl-row { transition: background 0.15s ease; }
+    .tbl-row:hover { background-color: #f5f7ff; }
 
-        /* Badges */
-        .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; line-height: 1.6; }
-        .badge-darurat { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-        .badge-sedang  { background: #fef9c3; color: #92400e; border: 1px solid #fcd34d; }
-        .badge-rendah  { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; line-height: 1.6; }
+    .badge-darurat { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .badge-sedang   { background: #fef9c3; color: #92400e; border: 1px solid #fcd34d; }
+    .badge-reguler  { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .badge-umum     { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
 
-        /* Progress bar */
-        .progress-fill { transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+    .progress-fill { transition: width 0.8s cubic-bezier(.4,0,.2,1); }
 
-        /* Modal backdrop */
-        .modal-backdrop {
-            background: rgba(15,23,42,0.45);
-            backdrop-filter: blur(3px);
-        }
-        .modal-card {
-            animation: pop-in 0.2s cubic-bezier(.34,1.56,.64,1);
-        }
-        @keyframes pop-in {
-            from { opacity: 0; transform: scale(0.92) translateY(10px); }
-            to   { opacity: 1; transform: scale(1) translateY(0); }
-        }
-    </style>
+    .modal-backdrop { background: rgba(15,23,42,0.55); backdrop-filter: blur(4px); }
+    .modal-card { animation: pop-in 0.2s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes pop-in {
+      from { opacity: 0; transform: scale(0.92) translateY(16px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* refresh pulse on indicator */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .blink { animation: blink 1s ease-in-out; }
+  </style>
 </head>
 <body class="bg-slate-100 flex h-screen overflow-hidden text-sm antialiased">
 
-<!-- ══════════════════════════════ SIDEBAR ══════════════════════════════ -->
-<aside class="w-64 bg-indigo-950 text-white flex flex-col shadow-2xl z-20 flex-shrink-0">
-
-    <!-- Brand -->
+  <!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
+  <aside class="w-64 bg-indigo-950 text-white flex flex-col shadow-2xl z-20 flex-shrink-0">
+    <!-- Logo -->
     <div class="px-6 py-5 border-b border-indigo-800/50">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                <i class="fas fa-robot text-indigo-950 text-lg"></i>
-            </div>
-            <div class="leading-tight">
-                <p class="text-base font-extrabold tracking-tight">Sobat Warga</p>
-                <p class="text-indigo-400 text-[11px] font-medium">Admin Dashboard</p>
-            </div>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+          <i class="fas fa-robot text-indigo-950 text-lg"></i>
         </div>
+        <div class="leading-tight">
+          <p class="text-base font-extrabold tracking-tight">Sobat Warga</p>
+          <p class="text-indigo-400 text-[11px] font-medium">Kel. Abianbase</p>
+        </div>
+      </div>
     </div>
 
     <!-- Nav -->
     <nav class="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
-        <p class="text-indigo-500 text-[10px] font-bold uppercase tracking-widest px-3 mb-2">Menu Utama</p>
-
-        <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-sm">
-            <i class="fas fa-chart-pie w-5 text-center text-sm"></i>
-            Dashboard
-        </a>
-
+      <p class="text-indigo-500 text-[10px] font-bold uppercase tracking-widest px-3 mb-2">Menu Utama</p>
+      <a href="#" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm">
+        <i class="fas fa-chart-pie w-5 text-center text-sm"></i> Dashboard
+      </a>
+      <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-indigo-300 font-medium text-sm">
+        <i class="fas fa-inbox w-5 text-center text-sm"></i> Semua Laporan
+        <span id="badge-total" class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full leading-none">0</span>
+      </a>
+      <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-indigo-300 font-medium text-sm">
+        <i class="fas fa-network-wired w-5 text-center text-sm"></i> Integrasi AI
+      </a>
+      <div class="pt-5">
+        <p class="text-indigo-500 text-[10px] font-bold uppercase tracking-widest px-3 mb-2">Sistem</p>
         <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-indigo-300 font-medium text-sm">
-            <i class="fas fa-inbox w-5 text-center text-sm"></i>
-            Laporan Masuk
-            <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full leading-none">5</span>
+          <i class="fas fa-cog w-5 text-center text-sm"></i> Pengaturan
         </a>
-
-        <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-indigo-300 font-medium text-sm">
-            <i class="fas fa-network-wired w-5 text-center text-sm"></i>
-            Auto-Routing Dinas
-        </a>
-
-        <div class="pt-5">
-            <p class="text-indigo-500 text-[10px] font-bold uppercase tracking-widest px-3 mb-2">Sistem</p>
-            <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-indigo-300 font-medium text-sm">
-                <i class="fas fa-cog w-5 text-center text-sm"></i>
-                Pengaturan
-            </a>
-        </div>
+      </div>
     </nav>
 
-    <!-- User Footer -->
+    <!-- User -->
     <div class="px-4 py-4 border-t border-indigo-800/50">
-        <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-900/60">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-xs font-bold flex-shrink-0 shadow">AK</div>
-            <div class="flex-1 min-w-0">
-                <p class="text-xs font-semibold text-white truncate">Admin Kelurahan</p>
-                <p class="text-[10px] text-emerald-400 font-semibold">● Online</p>
-            </div>
-            <i class="fas fa-ellipsis-v text-indigo-500 text-xs cursor-pointer hover:text-indigo-300 transition"></i>
+      <div class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-900/60">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-xs font-bold flex-shrink-0 shadow">AK</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-white truncate">Admin Kelurahan</p>
+          <p class="text-[10px] text-emerald-400 font-semibold">● Online</p>
         </div>
+        <i class="fas fa-ellipsis-v text-indigo-500 text-xs cursor-pointer hover:text-indigo-300 transition"></i>
+      </div>
     </div>
-</aside>
+  </aside>
 
-<!-- ══════════════════════════════ MAIN CONTENT ══════════════════════════════ -->
-<div class="flex-1 flex flex-col h-screen min-w-0">
+  <!-- ═══════════════════════════ MAIN AREA ═══════════════════════════ -->
+  <div class="flex-1 flex flex-col h-screen min-w-0">
 
     <!-- Header -->
     <header class="bg-white border-b border-gray-200 px-8 py-3.5 flex justify-between items-center flex-shrink-0">
-        <div>
-            <h1 class="text-lg font-extrabold text-gray-900 leading-tight tracking-tight">Command Center Sobat Warga</h1>
-            <p class="text-gray-400 text-[11px] mt-0.5 font-medium">
-                <i class="fas fa-calendar-alt mr-1.5 text-indigo-400"></i>
-                <span id="tanggal-header"></span>
-            </p>
+      <div>
+        <h1 class="text-lg font-extrabold text-gray-900 leading-tight tracking-tight">Command Center Sobat Warga</h1>
+        <p class="text-gray-400 text-[11px] mt-0.5 font-medium">
+          <i class="fas fa-calendar-alt mr-1.5 text-indigo-400"></i>
+          <span id="tanggal-header"></span>
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Auto-refresh status -->
+        <div id="refresh-status" class="hidden md:flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full border border-emerald-200">
+          <span id="refresh-dot" class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse inline-block"></span>
+          <span>Live · <span id="refresh-countdown">5</span>d</span>
         </div>
-        <div class="flex items-center gap-3">
-            <!-- Search -->
-            <div class="hidden md:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2 text-gray-400 text-xs w-48">
-                <i class="fas fa-search text-[11px]"></i>
-                <span>Cari laporan…</span>
-            </div>
-            <!-- Notif -->
-            <button class="relative w-9 h-9 rounded-xl bg-gray-100 hover:bg-indigo-50 flex items-center justify-center text-gray-500 hover:text-indigo-600 transition">
-                <i class="fas fa-bell text-sm"></i>
-                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-            <!-- Profile -->
-            <div class="flex items-center gap-2.5 pl-3 border-l border-gray-200">
-                <div class="text-right hidden sm:block">
-                    <p class="text-gray-800 font-bold text-xs leading-tight">Admin Kelurahan</p>
-                    <p class="text-gray-400 text-[10px]">Kel. Cilandak Barat</p>
-                </div>
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-black text-xs shadow-md cursor-pointer">AK</div>
-            </div>
+
+        <button onclick="muatData()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-md">
+          <i class="fas fa-sync-alt text-[11px]"></i> Perbarui
+        </button>
+
+        <button class="relative w-9 h-9 rounded-xl bg-gray-100 hover:bg-indigo-50 flex items-center justify-center text-gray-500 hover:text-indigo-600 transition">
+          <i class="fas fa-bell text-sm"></i>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+        </button>
+
+        <div class="flex items-center gap-2.5 pl-3 border-l border-gray-200">
+          <div class="text-right hidden sm:block">
+            <p class="text-gray-800 font-bold text-xs leading-tight">Admin Kelurahan</p>
+            <p class="text-gray-400 text-[10px]">Kel. Abianbase</p>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-black text-xs shadow-md cursor-pointer">AK</div>
         </div>
+      </div>
     </header>
 
-    <!-- Scrollable Main Area -->
+    <!-- Content -->
     <main class="flex-1 overflow-y-auto px-8 py-6 space-y-7">
 
-        <!-- Page Heading -->
-        <div class="flex items-center justify-between">
+      <!-- ── Stat Cards ── -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        <!-- Total -->
+        <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
+              <i class="fas fa-folder-open text-indigo-600 text-xl"></i>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Real-time</span>
+          </div>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Total Laporan</p>
+          <p id="stat-total" class="text-4xl font-black text-gray-900 mt-1 leading-none">0</p>
+          <p class="text-[11px] text-gray-400 mt-3">Data masuk dari Langflow AI</p>
+        </div>
+
+        <!-- Darurat -->
+        <div class="stat-card bg-gradient-to-br from-red-50 to-rose-50 rounded-2xl border border-red-100 shadow-sm p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center pulse-ring">
+              <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <span class="text-[10px] font-bold text-red-600 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">Tindakan Segera</span>
+          </div>
+          <p class="text-[11px] font-bold text-red-400 uppercase tracking-widest">Laporan DARURAT</p>
+          <p id="stat-darurat" class="text-4xl font-black text-red-700 mt-1 leading-none">0</p>
+          <p class="text-[11px] text-red-400 mt-3">Perlu penanganan segera</p>
+        </div>
+
+        <!-- Reguler -->
+        <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
+              <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Normal</span>
+          </div>
+          <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Laporan Reguler</p>
+          <p id="stat-reguler" class="text-4xl font-black text-gray-900 mt-1 leading-none">0</p>
+          <p class="text-[11px] text-gray-400 mt-3">Prioritas standar</p>
+        </div>
+
+      </div>
+
+      <!-- ── Tabel Laporan ── -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+        <!-- Tabel Header -->
+        <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-microchip text-indigo-600 text-sm"></i>
+            </div>
             <div>
-                <h2 class="text-base font-extrabold text-gray-800">Overview Laporan</h2>
-                <p class="text-gray-400 text-xs mt-0.5">Ringkasan kondisi real-time kelurahan dari AI Triage</p>
+              <h3 class="text-sm font-extrabold text-gray-800 leading-tight">Antrean Laporan Masuk</h3>
+              <p class="text-[11px] text-gray-400 font-medium">Dikategorikan &amp; diprioritaskan otomatis oleh AI Triage</p>
             </div>
-            <button class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-md">
-                <i class="fas fa-sync-alt text-[11px]"></i> Perbarui Data
-            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="live-badge" class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full border border-emerald-200">
+              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse inline-block"></span>
+              Live · Auto-Refresh 5s
+            </span>
+          </div>
         </div>
 
-        <!-- ─── Stat Cards ─── -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-            <!-- Total Laporan -->
-            <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-folder-open text-indigo-600 text-xl"></i>
-                    </div>
-                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">↑ 12 baru</span>
-                </div>
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Total Laporan</p>
-                <p class="text-4xl font-black text-gray-900 mt-1 leading-none">142</p>
-                <div class="mt-4">
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1.5 font-medium">
-                        <span>Progress bulan ini</span>
-                        <span class="font-bold text-gray-600">71%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div class="progress-fill h-full bg-indigo-500 rounded-full" style="width:71%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Laporan DARURAT -->
-            <div class="stat-card bg-gradient-to-br from-red-50 to-rose-50 rounded-2xl border border-red-100 shadow-sm p-6">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center pulse-ring">
-                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-                    </div>
-                    <span class="text-[10px] font-bold text-red-600 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full">Tindakan Segera</span>
-                </div>
-                <p class="text-[11px] font-bold text-red-400 uppercase tracking-widest">Laporan DARURAT</p>
-                <p class="text-4xl font-black text-red-700 mt-1 leading-none">5</p>
-                <div class="mt-4">
-                    <div class="flex justify-between text-[10px] text-red-400 mb-1.5 font-medium">
-                        <span>Belum ditangani</span>
-                        <span class="font-bold text-red-600">3 / 5</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-red-100 rounded-full overflow-hidden">
-                        <div class="progress-fill h-full bg-red-500 rounded-full" style="width:60%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Selesai Diproses -->
-            <div class="stat-card bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-check-circle text-emerald-600 text-xl"></i>
-                    </div>
-                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">84.5% selesai</span>
-                </div>
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Selesai Diproses</p>
-                <p class="text-4xl font-black text-gray-900 mt-1 leading-none">120</p>
-                <div class="mt-4">
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1.5 font-medium">
-                        <span>Tingkat penyelesaian</span>
-                        <span class="font-bold text-gray-600">84.5%</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div class="progress-fill h-full bg-emerald-500 rounded-full" style="width:84.5%"></div>
-                    </div>
-                </div>
-            </div>
-
+        <!-- Loading State -->
+        <div id="tabel-loading" class="flex flex-col items-center justify-center py-16 text-gray-300">
+          <i class="fas fa-circle-notch fa-spin text-3xl mb-3 text-indigo-300"></i>
+          <p class="text-sm font-medium text-gray-400">Memuat data dari server…</p>
         </div>
-        <!-- End Stat Cards -->
 
-        <!-- ─── Tabel Laporan Masuk ─── -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-
-            <!-- Table Toolbar -->
-            <div class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-microchip text-indigo-600 text-sm"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-extrabold text-gray-800 leading-tight">Antrean Laporan Masuk</h3>
-                        <p class="text-[11px] text-gray-400 font-medium">Dikategorikan &amp; diprioritaskan otomatis oleh AI Triage</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full border border-emerald-200">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse inline-block"></span>
-                        Live · Baru saja diperbarui
-                    </span>
-                    <button class="flex items-center gap-1.5 bg-gray-100 hover:bg-indigo-50 hover:text-indigo-600 text-gray-600 text-[11px] font-bold px-3 py-1.5 rounded-lg transition border border-transparent hover:border-indigo-200">
-                        <i class="fas fa-filter text-[10px]"></i> Filter
-                    </button>
-                    <button class="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-[11px] font-bold px-3 py-1.5 rounded-lg transition">
-                        <i class="fas fa-download text-[10px]"></i> Ekspor
-                    </button>
-                </div>
-            </div>
-
-            <!-- Table Body -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-left">
-                    <thead>
-                        <tr class="bg-slate-50/80 border-b border-gray-100 text-[10.5px] font-extrabold uppercase tracking-widest text-gray-400">
-                            <th class="px-6 py-3 w-12 text-center">#</th>
-                            <th class="px-6 py-3">Ringkasan Laporan</th>
-                            <th class="px-5 py-3">Kategori</th>
-                            <th class="px-5 py-3">Urgensi</th>
-                            <th class="px-5 py-3">Instansi Rujukan (SLA)</th>
-                            <th class="px-5 py-3 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-
-                        <!-- Row 1: DARURAT -->
-                        <tr class="tbl-row">
-                            <td class="px-6 py-4 text-center text-gray-300 font-bold text-xs">01</td>
-                            <td class="px-6 py-4 max-w-xs">
-                                <p class="font-bold text-gray-800 text-[13px] mb-0.5">Penumpukan Sampah Mendesak</p>
-                                <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">Tumpukan sampah di pertigaan Gang Beringin RT 02 sudah seminggu tidak diangkut, bau menyengat dan lalat berdatangan.</p>
-                                <p class="text-indigo-400 text-[10px] mt-1.5 font-semibold"><i class="fas fa-map-marker-alt mr-1"></i>RT 02 / RW 04</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-recycle text-green-600 text-[10px]"></i>
-                                    </div>
-                                    <span class="text-gray-700 font-semibold text-xs">Kebersihan</span>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <span class="badge badge-darurat">
-                                    <i class="fas fa-circle text-[6px]"></i> Darurat
-                                </span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <p class="font-bold text-gray-800 text-[13px]">Dinas Lingkungan Hidup</p>
-                                <p class="text-[11px] text-orange-500 font-semibold mt-0.5"><i class="far fa-clock mr-1"></i>SLA: 1–2 Hari</p>
-                            </td>
-                            <td class="px-5 py-4 text-center">
-                                <button onclick="openModal('Dinas Lingkungan Hidup','Penumpukan Sampah Mendesak','RT 02 / RW 04')" class="btn-wa bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-2 whitespace-nowrap">
-                                    <i class="fab fa-whatsapp text-sm"></i> Kirim Draf WA
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Row 2: DARURAT -->
-                        <tr class="tbl-row">
-                            <td class="px-6 py-4 text-center text-gray-300 font-bold text-xs">02</td>
-                            <td class="px-6 py-4 max-w-xs">
-                                <p class="font-bold text-gray-800 text-[13px] mb-0.5">Pohon Tumbang Halangi Jalan</p>
-                                <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">Pohon besar tumbang akibat angin kencang semalam, menghalangi akses jalan utama Jl. Mawar dan berbahaya bagi warga.</p>
-                                <p class="text-indigo-400 text-[10px] mt-1.5 font-semibold"><i class="fas fa-map-marker-alt mr-1"></i>Jl. Mawar No. 7</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-tree text-orange-500 text-[10px]"></i>
-                                    </div>
-                                    <span class="text-gray-700 font-semibold text-xs">Infrastruktur</span>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <span class="badge badge-darurat">
-                                    <i class="fas fa-circle text-[6px]"></i> Darurat
-                                </span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <p class="font-bold text-gray-800 text-[13px]">Dinas PUPR / BPBD</p>
-                                <p class="text-[11px] text-orange-500 font-semibold mt-0.5"><i class="far fa-clock mr-1"></i>SLA: &lt;24 Jam</p>
-                            </td>
-                            <td class="px-5 py-4 text-center">
-                                <button onclick="openModal('Dinas PUPR / BPBD','Pohon Tumbang Halangi Jalan','Jl. Mawar No. 7')" class="btn-wa bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-2 whitespace-nowrap">
-                                    <i class="fab fa-whatsapp text-sm"></i> Kirim Draf WA
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Row 3: SEDANG -->
-                        <tr class="tbl-row">
-                            <td class="px-6 py-4 text-center text-gray-300 font-bold text-xs">03</td>
-                            <td class="px-6 py-4 max-w-xs">
-                                <p class="font-bold text-gray-800 text-[13px] mb-0.5">Lampu Jalan Mati Total</p>
-                                <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">Lampu penerangan di tiang listrik dekat poskamling RT 04 mati sejak hujan deras kemarin, rawan kecelakaan malam.</p>
-                                <p class="text-indigo-400 text-[10px] mt-1.5 font-semibold"><i class="fas fa-map-marker-alt mr-1"></i>RT 04 / RW 02</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-bolt text-yellow-500 text-[10px]"></i>
-                                    </div>
-                                    <span class="text-gray-700 font-semibold text-xs">Infrastruktur</span>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <span class="badge badge-sedang">
-                                    <i class="fas fa-circle text-[6px]"></i> Sedang
-                                </span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <p class="font-bold text-gray-800 text-[13px]">PLN Area / PJU</p>
-                                <p class="text-[11px] text-yellow-600 font-semibold mt-0.5"><i class="far fa-clock mr-1"></i>SLA: 3–5 Hari</p>
-                            </td>
-                            <td class="px-5 py-4 text-center">
-                                <button onclick="openModal('PLN Area / PJU','Lampu Jalan Mati Total','RT 04 / RW 02')" class="btn-wa bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-2 whitespace-nowrap">
-                                    <i class="fab fa-whatsapp text-sm"></i> Kirim Draf WA
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Row 4: SEDANG -->
-                        <tr class="tbl-row">
-                            <td class="px-6 py-4 text-center text-gray-300 font-bold text-xs">04</td>
-                            <td class="px-6 py-4 max-w-xs">
-                                <p class="font-bold text-gray-800 text-[13px] mb-0.5">Gorong-gorong Tersumbat</p>
-                                <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">Saluran air di belakang pasar RW 06 tersumbat sampah, menyebabkan genangan banjir setiap kali hujan turun.</p>
-                                <p class="text-indigo-400 text-[10px] mt-1.5 font-semibold"><i class="fas fa-map-marker-alt mr-1"></i>RW 06 — Belakang Pasar</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-water text-blue-500 text-[10px]"></i>
-                                    </div>
-                                    <span class="text-gray-700 font-semibold text-xs">Drainase</span>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <span class="badge badge-sedang">
-                                    <i class="fas fa-circle text-[6px]"></i> Sedang
-                                </span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <p class="font-bold text-gray-800 text-[13px]">Dinas PUPR Kota</p>
-                                <p class="text-[11px] text-yellow-600 font-semibold mt-0.5"><i class="far fa-clock mr-1"></i>SLA: 3–5 Hari</p>
-                            </td>
-                            <td class="px-5 py-4 text-center">
-                                <button onclick="openModal('Dinas PUPR Kota','Gorong-gorong Tersumbat','RW 06 — Belakang Pasar')" class="btn-wa bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-2 whitespace-nowrap">
-                                    <i class="fab fa-whatsapp text-sm"></i> Kirim Draf WA
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Row 5: RENDAH -->
-                        <tr class="tbl-row">
-                            <td class="px-6 py-4 text-center text-gray-300 font-bold text-xs">05</td>
-                            <td class="px-6 py-4 max-w-xs">
-                                <p class="font-bold text-gray-800 text-[13px] mb-0.5">Permohonan Surat Keterangan</p>
-                                <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">Warga atas nama Budi Santoso mengajukan permohonan surat keterangan tidak mampu untuk kebutuhan beasiswa anak.</p>
-                                <p class="text-indigo-400 text-[10px] mt-1.5 font-semibold"><i class="fas fa-map-marker-alt mr-1"></i>RT 01 / RW 01</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-file-alt text-indigo-500 text-[10px]"></i>
-                                    </div>
-                                    <span class="text-gray-700 font-semibold text-xs">Administrasi</span>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <span class="badge badge-rendah">
-                                    <i class="fas fa-circle text-[6px]"></i> Rendah
-                                </span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <p class="font-bold text-gray-800 text-[13px]">Staf Admin Kelurahan</p>
-                                <p class="text-[11px] text-emerald-600 font-semibold mt-0.5"><i class="far fa-clock mr-1"></i>SLA: 1 Minggu</p>
-                            </td>
-                            <td class="px-5 py-4 text-center">
-                                <button onclick="openModal('Staf Admin Kelurahan','Permohonan Surat Keterangan','RT 01 / RW 01')" class="btn-wa bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-2 whitespace-nowrap">
-                                    <i class="fab fa-whatsapp text-sm"></i> Kirim Draf WA
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Row 6: RENDAH -->
-                        <tr class="tbl-row">
-                            <td class="px-6 py-4 text-center text-gray-300 font-bold text-xs">06</td>
-                            <td class="px-6 py-4 max-w-xs">
-                                <p class="font-bold text-gray-800 text-[13px] mb-0.5">Vandalism Fasilitas Taman</p>
-                                <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">Beberapa bangku taman di Taman RW 03 dicoret-coret dan rusak, perlu perbaikan cat serta pengecatan ulang pagar.</p>
-                                <p class="text-indigo-400 text-[10px] mt-1.5 font-semibold"><i class="fas fa-map-marker-alt mr-1"></i>Taman RW 03</p>
-                            </td>
-                            <td class="px-5 py-4">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-paint-brush text-purple-500 text-[10px]"></i>
-                                    </div>
-                                    <span class="text-gray-700 font-semibold text-xs">Fasilitas Umum</span>
-                                </div>
-                            </td>
-                            <td class="px-5 py-4">
-                                <span class="badge badge-rendah">
-                                    <i class="fas fa-circle text-[6px]"></i> Rendah
-                                </span>
-                            </td>
-                            <td class="px-5 py-4">
-                                <p class="font-bold text-gray-800 text-[13px]">Dinas Tata Kota</p>
-                                <p class="text-[11px] text-emerald-600 font-semibold mt-0.5"><i class="far fa-clock mr-1"></i>SLA: 1–2 Minggu</p>
-                            </td>
-                            <td class="px-5 py-4 text-center">
-                                <button onclick="openModal('Dinas Tata Kota','Vandalism Fasilitas Taman','Taman RW 03')" class="btn-wa bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-2 whitespace-nowrap">
-                                    <i class="fab fa-whatsapp text-sm"></i> Kirim Draf WA
-                                </button>
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Table Footer / Pagination -->
-            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-slate-50/60">
-                <p class="text-xs text-gray-400 font-medium">Menampilkan <span class="font-bold text-gray-600">6</span> dari <span class="font-bold text-gray-600">22</span> laporan</p>
-                <div class="flex items-center gap-1">
-                    <button class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-400 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 flex items-center justify-center text-xs transition">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-sm">1</button>
-                    <button class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 flex items-center justify-center text-xs transition">2</button>
-                    <button class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 flex items-center justify-center text-xs transition">3</button>
-                    <button class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-400 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 flex items-center justify-center text-xs transition">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-
+        <!-- Empty State -->
+        <div id="tabel-kosong" class="hidden flex-col items-center justify-center py-16 text-gray-300">
+          <i class="fas fa-inbox text-4xl mb-3 text-gray-200"></i>
+          <p class="text-sm font-medium text-gray-400">Belum ada laporan masuk.</p>
+          <p class="text-xs text-gray-300 mt-1">Data dari Langflow akan muncul di sini secara otomatis.</p>
         </div>
-        <!-- End Table -->
 
+        <!-- Tabel Isi -->
+        <div id="tabel-wrapper" class="hidden overflow-x-auto">
+          <table class="min-w-full text-left">
+            <thead>
+              <tr class="bg-slate-50/80 border-b border-gray-100 text-[10.5px] font-extrabold uppercase tracking-widest text-gray-400">
+                <th class="px-6 py-3 w-12 text-center">#</th>
+                <th class="px-6 py-3">Waktu</th>
+                <th class="px-6 py-3">Ringkasan Laporan</th>
+                <th class="px-5 py-3">Kategori</th>
+                <th class="px-5 py-3">Urgensi</th>
+                <th class="px-5 py-3">Instansi Rujukan</th>
+                <th class="px-5 py-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-body" class="divide-y divide-gray-50">
+              <!-- Diisi oleh JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer -->
+        <div id="tabel-footer" class="hidden px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-slate-50/60">
+          <p class="text-xs text-gray-400 font-medium">
+            Menampilkan <span id="footer-jumlah" class="font-bold text-gray-600">0</span> laporan
+          </p>
+          <p class="text-[11px] text-gray-300 font-medium">
+            <i class="fas fa-sync-alt mr-1 text-emerald-400"></i>
+            Terakhir diperbarui: <span id="footer-waktu" class="text-gray-500 font-semibold">—</span>
+          </p>
+        </div>
+
+      </div>
     </main>
-</div>
-<!-- End Main -->
+  </div>
 
-<!-- ══════════════════════════════ MODAL ══════════════════════════════ -->
-<div id="wa-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
-    <div class="modal-card bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-100">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
-                    <i class="fab fa-whatsapp text-emerald-600 text-lg"></i>
-                </div>
-                <div>
-                    <h3 class="text-sm font-extrabold text-gray-800">Kirim Draf Pesan WA</h3>
-                    <p class="text-[11px] text-gray-400 font-medium">Auto-generated oleh AI Triage</p>
-                </div>
-            </div>
-            <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition text-xs">
-                <i class="fas fa-times"></i>
-            </button>
+  <!-- ═══════════════════════════ MODAL KONFIRMASI HAPUS ═══════════════════════════ -->
+  <div id="hapus-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="modal-card bg-white rounded-2xl shadow-2xl w-full max-w-sm border border-gray-100">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-red-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-trash-alt text-red-500 text-sm"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-gray-800">Hapus Laporan?</h3>
+            <p class="text-[11px] text-gray-400 font-medium">Tindakan ini tidak dapat dibatalkan</p>
+          </div>
         </div>
-        <!-- Modal Body -->
-        <div class="px-6 py-5 space-y-4">
-            <div>
-                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Tujuan Instansi</label>
-                <div id="modal-instansi" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-800"></div>
-            </div>
-            <div>
-                <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Draf Pesan</label>
-                <textarea id="modal-pesan" rows="7" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-700 font-mono leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"></textarea>
-            </div>
-            <p class="text-[11px] text-gray-400 flex items-start gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 font-medium">
-                <i class="fas fa-info-circle text-amber-500 mt-0.5 flex-shrink-0"></i>
-                Pesan ini adalah draf dari AI. Periksa kembali sebelum mengirim ke pihak instansi.
-            </p>
-        </div>
-        <!-- Modal Footer -->
-        <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/60 rounded-b-2xl">
-            <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
-                Batal
-            </button>
-            <button class="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-xs font-extrabold transition shadow-md">
-                <i class="fab fa-whatsapp text-sm"></i> Kirim via WhatsApp
-            </button>
-        </div>
+        <button onclick="closeHapusModal()" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition text-xs">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="px-6 py-5">
+        <p class="text-sm text-gray-600 leading-relaxed">
+          Anda akan menghapus laporan:
+        </p>
+        <p id="hapus-preview" class="mt-2 text-sm font-bold text-gray-800 bg-red-50 border border-red-100 rounded-xl px-4 py-3 line-clamp-2"></p>
+        <p class="mt-3 text-[11px] text-red-500 font-semibold flex items-center gap-1.5">
+          <i class="fas fa-exclamation-circle"></i>
+          Data yang dihapus tidak dapat dipulihkan kembali.
+        </p>
+      </div>
+
+      <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/60 rounded-b-2xl">
+        <button onclick="closeHapusModal()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold transition">Batal</button>
+        <button id="hapus-konfirm-btn" onclick="eksekusiHapus()" class="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 text-white text-xs font-extrabold transition shadow-md">
+          <i class="fas fa-trash-alt text-sm"></i> Ya, Hapus
+        </button>
+      </div>
+
     </div>
-</div>
+  </div>
 
-<script>
-    // Dynamic date
+  <!-- ═══════════════════════════ MODAL WA ═══════════════════════════ -->
+  <div id="wa-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="modal-card bg-white rounded-2xl shadow-2xl w-full max-w-md border border-gray-100">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
+            <i class="fab fa-whatsapp text-emerald-600 text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-gray-800">Kirim Draf Pesan WA</h3>
+            <p class="text-[11px] text-gray-400 font-medium">Auto-generated oleh AI Triage</p>
+          </div>
+        </div>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition text-xs">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+        <div>
+          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Tujuan Instansi</label>
+          <div id="modal-instansi" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-bold text-gray-800"></div>
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-gray-500 uppercase tracking-widest block mb-1.5">Draf Pesan</label>
+          <textarea id="modal-pesan" rows="7" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-700 font-mono leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400"></textarea>
+        </div>
+        <p class="text-[11px] text-gray-400 flex items-start gap-1.5 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 font-medium">
+          <i class="fas fa-info-circle text-amber-500 mt-0.5 flex-shrink-0"></i>
+          Salin teks di atas dan kirimkan secara manual melalui WhatsApp ke nomor instansi terkait.
+        </p>
+      </div>
+
+      <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/60 rounded-b-2xl">
+        <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold transition">Batal</button>
+        <button onclick="salinPesan()" class="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-xs font-extrabold transition shadow-md">
+          <i class="fas fa-copy text-sm"></i> Salin Pesan
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ JAVASCRIPT ═══════════════════════════ -->
+  <script>
+    // ── Tanggal Header ──────────────────────────────────────────────────
     const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('tanggal-header').textContent = new Date().toLocaleDateString('id-ID', opts);
+    document.getElementById('tanggal-header').textContent =
+      new Date().toLocaleDateString('id-ID', opts);
 
-    // WA Modal
-    function openModal(instansi, laporan, lokasi) {
-        const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        document.getElementById('modal-instansi').textContent = instansi;
-        document.getElementById('modal-pesan').value =
-`Yth. ${instansi},
+    // ── Helpers Badge ───────────────────────────────────────────────────
+    function badgeUrgensi(urgensi) {
+      const u = (urgensi || '').toLowerCase();
+      if (u.includes('darurat'))  return `<span class="badge badge-darurat"><i class="fas fa-circle text-[6px]"></i> Darurat</span>`;
+      if (u.includes('sedang'))   return `<span class="badge badge-sedang"><i class="fas fa-circle text-[6px]"></i> Sedang</span>`;
+      if (u.includes('rendah'))   return `<span class="badge badge-reguler"><i class="fas fa-circle text-[6px]"></i> Rendah</span>`;
+      return `<span class="badge badge-umum"><i class="fas fa-circle text-[6px]"></i> ${urgensi || 'Reguler'}</span>`;
+    }
 
-Dengan hormat, kami dari Kelurahan Cilandak Barat menyampaikan laporan warga yang memerlukan penanganan segera.
+    function ikonKategori(kategori) {
+      const k = (kategori || '').toLowerCase();
+      if (k.includes('kebersihan'))    return { bg: 'bg-green-100',  ic: 'fas fa-recycle text-green-600' };
+      if (k.includes('infrastruktur')) return { bg: 'bg-orange-100', ic: 'fas fa-hard-hat text-orange-500' };
+      if (k.includes('drainase'))      return { bg: 'bg-blue-100',   ic: 'fas fa-water text-blue-500' };
+      if (k.includes('administrasi'))  return { bg: 'bg-indigo-100', ic: 'fas fa-file-alt text-indigo-500' };
+      if (k.includes('fasilitas'))     return { bg: 'bg-purple-100', ic: 'fas fa-paint-brush text-purple-500' };
+      return { bg: 'bg-gray-100', ic: 'fas fa-tag text-gray-500' };
+    }
 
-📋 LAPORAN WARGA
-━━━━━━━━━━━━━━━━
-Judul   : ${laporan}
-Lokasi  : ${lokasi}
-Tanggal : ${tgl}
+    function escape(str) {
+      return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
-Mohon kiranya pihak ${instansi} dapat menindaklanjuti laporan ini sesuai dengan SLA yang telah ditetapkan.
+    // ── Render Tabel ────────────────────────────────────────────────────
+    function renderTabel(data) {
+      const tbody = document.getElementById('tabel-body');
+      tbody.innerHTML = '';
 
-Atas perhatian dan kerja samanya, kami ucapkan terima kasih.
+      if (!data || data.length === 0) {
+        document.getElementById('tabel-loading').classList.add('hidden');
+        document.getElementById('tabel-kosong').classList.remove('hidden');
+        document.getElementById('tabel-kosong').classList.add('flex');
+        document.getElementById('tabel-wrapper').classList.add('hidden');
+        document.getElementById('tabel-footer').classList.add('hidden');
+        return;
+      }
 
-Hormat kami,
-Admin Kelurahan Cilandak Barat
-Sistem Sobat Warga`;
+      // Tampilkan tabel
+      document.getElementById('tabel-loading').classList.add('hidden');
+      document.getElementById('tabel-kosong').classList.add('hidden');
+      document.getElementById('tabel-wrapper').classList.remove('hidden');
+      document.getElementById('tabel-footer').classList.remove('hidden');
 
-        document.getElementById('wa-modal').classList.remove('hidden');
+      // Hitung stats
+      let jmlDarurat = 0, jmlReguler = 0;
+      data.forEach(d => {
+        const u = (d.urgensi || '').toLowerCase();
+        if (u.includes('darurat')) jmlDarurat++;
+        else jmlReguler++;
+      });
+
+      document.getElementById('stat-total').textContent   = data.length;
+      document.getElementById('stat-darurat').textContent = jmlDarurat;
+      document.getElementById('stat-reguler').textContent = jmlReguler;
+      document.getElementById('badge-total').textContent  = data.length;
+      document.getElementById('footer-jumlah').textContent = data.length;
+      document.getElementById('footer-waktu').textContent =
+        new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      data.forEach((d, i) => {
+        const nomorUrut = String(i + 1).padStart(2, '0');
+        const ikon = ikonKategori(d.kategori);
+        const ringkasan = escape(d.ringkasan || '-');
+        const kategori  = escape(d.kategori  || 'Umum');
+        const instansi  = escape(d.instansi  || 'Kantor Kelurahan');
+        const draf      = escape(d.draf_pesan|| '-');
+        const waktu     = escape(d.waktu     || '-');
+
+        const tr = document.createElement('tr');
+        tr.className = 'tbl-row';
+        tr.innerHTML = `
+          <td class="px-6 py-4 text-center text-gray-300 font-bold text-xs">${nomorUrut}</td>
+          <td class="px-5 py-4">
+            <p class="text-gray-700 font-semibold text-[11px] whitespace-nowrap">${waktu}</p>
+          </td>
+          <td class="px-6 py-4 max-w-xs">
+            <p class="font-bold text-gray-800 text-[13px] mb-0.5 line-clamp-1">${ringkasan}</p>
+            <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">${ringkasan}</p>
+          </td>
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 ${ikon.bg} rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="${ikon.ic} text-[10px]"></i>
+              </div>
+              <span class="text-gray-700 font-semibold text-xs">${kategori}</span>
+            </div>
+          </td>
+          <td class="px-5 py-4">${badgeUrgensi(d.urgensi)}</td>
+          <td class="px-5 py-4">
+            <p class="font-bold text-gray-800 text-[13px]">${instansi}</p>
+          </td>
+          <td class="px-5 py-4 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button
+                onclick="openModal('${instansi.replace(/'/g,"\\'")}', '${ringkasan.replace(/'/g,"\\'")}', '${draf.replace(/'/g,"\\'")}')"
+                class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-3 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fab fa-whatsapp text-sm"></i> Draf WA
+              </button>
+              <button
+                onclick="konfirmasiHapus(${d.id}, '${ringkasan.replace(/'/g,"\\'").substring(0, 40)}')"
+                class="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 active:scale-95 text-red-400 hover:text-red-600 border border-red-100 hover:border-red-300 flex items-center justify-center transition flex-shrink-0"
+                title="Hapus laporan ini">
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ── Fetch Data ──────────────────────────────────────────────────────
+    async function muatData() {
+      try {
+        const res  = await fetch('http://127.0.0.1:5001/api/ambil-laporan');
+        const data = await res.json();
+        renderTabel(data);
+
+        // Kedip singkat pada live badge sebagai konfirmasi refresh
+        const dot = document.getElementById('refresh-dot');
+        dot.classList.add('blink');
+        setTimeout(() => dot.classList.remove('blink'), 900);
+
+      } catch (err) {
+        console.warn('Gagal fetch laporan:', err);
+        // Jangan sembunyikan data lama jika hanya timeout sesaat
+      }
+    }
+
+    // ── Auto-Refresh 5 detik ────────────────────────────────────────────
+    const INTERVAL_DETIK = 5;
+    let hitungMundur = INTERVAL_DETIK;
+
+    document.getElementById('refresh-status').classList.remove('hidden');
+
+    setInterval(() => {
+      hitungMundur--;
+      document.getElementById('refresh-countdown').textContent = hitungMundur;
+      if (hitungMundur <= 0) {
+        hitungMundur = INTERVAL_DETIK;
+        muatData();
+      }
+    }, 1000);
+
+    // ── Modal WhatsApp ──────────────────────────────────────────────────
+    function openModal(instansi, laporan, draf) {
+      const pesan = draf && draf !== '-'
+        ? draf
+        : `Yth. ${instansi},\n\nKami dari Kantor Kelurahan Abianbase meneruskan laporan warga berikut:\n\n"${laporan}"\n\nMohon kiranya dapat ditindaklanjuti sesuai dengan prosedur yang berlaku.\n\nAtas perhatian dan kerja samanya, kami ucapkan terima kasih.\n\nHormat kami,\nAdmin Kelurahan Abianbase`;
+
+      document.getElementById('modal-instansi').textContent = instansi;
+      document.getElementById('modal-pesan').value = pesan;
+      document.getElementById('wa-modal').classList.remove('hidden');
     }
 
     function closeModal() {
-        document.getElementById('wa-modal').classList.add('hidden');
+      document.getElementById('wa-modal').classList.add('hidden');
     }
 
-    // Close modal on backdrop click
+    function salinPesan() {
+      const teks = document.getElementById('modal-pesan').value;
+      navigator.clipboard.writeText(teks).then(() => {
+        const btn = event.currentTarget;
+        const asli = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check text-sm"></i> Tersalin!';
+        btn.classList.replace('bg-emerald-500','bg-green-600');
+        setTimeout(() => { btn.innerHTML = asli; btn.classList.replace('bg-green-600','bg-emerald-500'); }, 1800);
+      });
+    }
+
+    // Tutup modal WA jika klik backdrop
     document.getElementById('wa-modal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
+      if (e.target === this) closeModal();
     });
-</script>
+
+    // ── Modal Hapus ─────────────────────────────────────────────────────
+    let _hapusId = null;
+
+    function konfirmasiHapus(id, cuplikanTeks) {
+      _hapusId = id;
+      document.getElementById('hapus-preview').textContent =
+        (cuplikanTeks || 'Laporan #' + id) + (cuplikanTeks && cuplikanTeks.length >= 40 ? '…' : '');
+      document.getElementById('hapus-modal').classList.remove('hidden');
+    }
+
+    function closeHapusModal() {
+      document.getElementById('hapus-modal').classList.add('hidden');
+      _hapusId = null;
+    }
+
+    async function eksekusiHapus() {
+      if (_hapusId === null) return;
+
+      const btn = document.getElementById('hapus-konfirm-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-sm"></i> Menghapus…';
+
+      try {
+        const res = await fetch(`http://127.0.0.1:5001/api/hapus-laporan/${_hapusId}`, {
+          method: 'DELETE',
+        });
+        const hasil = await res.json();
+
+        if (res.ok) {
+          closeHapusModal();
+          muatData(); // refresh tabel langsung
+        } else {
+          alert('Gagal menghapus: ' + (hasil.pesan || 'Kesalahan tidak diketahui'));
+        }
+      } catch (err) {
+        alert('Tidak dapat terhubung ke server. Pastikan Flask berjalan.');
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-trash-alt text-sm"></i> Ya, Hapus';
+      }
+    }
+
+    // Tutup modal hapus jika klik backdrop
+    document.getElementById('hapus-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeHapusModal();
+    });
+
+    // ── Init ────────────────────────────────────────────────────────────
+    muatData();
+  </script>
 </body>
 </html>

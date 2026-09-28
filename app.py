@@ -124,6 +124,21 @@ def tambah_laporan():
         return jsonify({"status": "error", "pesan": f"Gagal menyimpan laporan: {str(e)}"}), 500
 
 
+# API Endpoint 3: Menghapus laporan berdasarkan ID (DELETE)
+@app.route('/api/hapus-laporan/<int:id>', methods=['DELETE'])
+def hapus_laporan(id):
+    try:
+        with get_db() as conn:
+            hasil = conn.execute('DELETE FROM laporan WHERE id = ?', (id,))
+            if hasil.rowcount == 0:
+                return jsonify({"status": "error", "pesan": f"Laporan dengan ID {id} tidak ditemukan."}), 404
+
+        return jsonify({"status": "sukses", "pesan": f"Laporan ID {id} berhasil dihapus."}), 200
+
+    except Exception as e:
+        return jsonify({"status": "error", "pesan": f"Gagal menghapus laporan: {str(e)}"}), 500
+
+
 # API Endpoint 2: Mengirim data ke Dashboard HTML (GET)
 @app.route('/api/ambil-laporan', methods=['GET'])
 def ambil_laporan():
