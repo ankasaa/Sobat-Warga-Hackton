@@ -40,35 +40,53 @@ def parse_payload():
     }
 
     try:
-        # 1. Cek apakah ada data JSON standar dari Key-Value Langflow
+        raw = request.get_data(as_text=True).strip()
+        if not raw:
+            return DEFAULT
+
+        # Coba ambil teks mentahnya (baik dari JSON maupun teks murni)
+        teks_analisis = raw
         if request.is_json:
             content = request.get_json(silent=True)
             if isinstance(content, dict):
-                hasil = DEFAULT.copy()
-                # Cari berbagai kemungkinan nama key dari Langflow
+                # Ambil teks dari key apa pun yang dikirim Langflow
                 for k in ["ringkasan", "text", "message", "input", "data"]:
                     if content.get(k):
-                        hasil["ringkasan"] = str(content[k])
+                        teks_analisis = str(content[k])
                         break
-                # Ambil field lain jika ada
-                for key in ["kategori", "urgensi", "instansi", "draf_pesan"]:
-                    if content.get(key):
-                        hasil[key] = str(content[key])
-                return hasil
 
-        # 2. Baca sebagai teks mentah / form data jika dikirim langsung
-        raw = request.get_data(as_text=True).strip()
-        if raw:
-            # Jika ada key 'ringkasan=' atau bentuk form-urlencoded
-            if "ringkasan=" in raw or "text=" in raw:
-                from urllib.parse import parse_qs
-                parsed_form = parse_qs(raw)
-                for k in ["ringkasan", "text"]:
-                    if k in parsed_form and parsed_form[k][0]:
-                        return {**DEFAULT, "ringkasan": parsed_form[k][0]}
+        # Mulai salin default
+        hasil = DEFAULT.copy()
+        hasil["ringkasan"] = teks_analisis
 
-            # Jika benar-benar murni teks bebas
-            return {**DEFAULT, "ringkasan": raw}
+        # --- FITUR CERDAS: Ekstraksi Kategori & Urgensi Otomatis dari Teks AI ---
+        teks_lower = teks_analisis.lower()
+
+        # 1. Deteksi Urgensi
+        if "darurat" in teks_lower or "fatal" in teks_lower or "korban jiwa" in teks_lower:
+            hasil["urgensi"] = "Darurat"
+        else:
+            hasil["urgensi"] = "Reguler"
+
+        # 2. Deteksi Kategori
+        if "infrastruktur" in teks_lower or "jalan" in teks_lower or "jembatan" in teks_lower or "pencahayaan" in teks_lower:
+            hasil["kategori"] = "Infrastruktur & Fasilitas Umum"
+        elif "kebencanaan" in teks_lower or "kecelakaan" in teks_lower or "pohon tumbang" in teks_lower or "rumah roboh" in teks_lower:
+            hasil["kategori"] = "Ketertiban, Keamanan, & Kebencanaan"
+        elif "kebersihan" in teks_lower or "sampah" in teks_lower:
+            hasil["kategori"] = "Kebersihan & Lingkungan Hidup"
+        else:
+            hasil["kategori"] = "Layanan Umum"
+
+        # 3. Deteksi Instansi Terkait (Opsional sederhana)
+        if "pupr" in teks_lower:
+            hasil["instansi"] = "Dinas PUPR Badung"
+        elif "bpbd" in teks_lower or "polisi" in teks_lower or "bhabinkamtibmas" in teks_lower:
+            hasil["instansi"] = "BPBD & Kepolisian / Bhabinkamtibmas"
+        elif "dlhk" in teks_lower:
+            hasil["instansi"] = "DLHK Badung"
+
+        return hasil
 
     except Exception as e:
         print(f"Error parse_payload: {e}")
