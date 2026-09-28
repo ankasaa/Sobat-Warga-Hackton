@@ -261,6 +261,68 @@
     </main>
   </div>
 
+  <!-- ═══════════════════════════ MODAL DETAIL LAPORAN ═══════════════════════════ -->
+  <div id="detail-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="modal-card bg-white rounded-2xl shadow-2xl w-full max-w-lg border border-gray-100">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center">
+            <i class="fas fa-file-alt text-indigo-600 text-sm"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-gray-800">Detail Laporan</h3>
+            <p class="text-[11px] text-gray-400 font-medium">Hasil analisis lengkap oleh AI Triage</p>
+          </div>
+        </div>
+        <button onclick="closeDetailModal()" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 transition text-xs">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Meta Info -->
+      <div class="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100">
+        <div class="px-5 py-3.5">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Waktu Masuk</p>
+          <p id="detail-waktu" class="text-xs font-bold text-gray-700"></p>
+        </div>
+        <div class="px-5 py-3.5">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Kategori</p>
+          <p id="detail-kategori" class="text-xs font-bold text-gray-700"></p>
+        </div>
+        <div class="px-5 py-3.5">
+          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Urgensi</p>
+          <div id="detail-urgensi"></div>
+        </div>
+      </div>
+
+      <!-- Instansi -->
+      <div class="px-6 pt-4 pb-2">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Instansi Rujukan</p>
+        <div class="flex items-center gap-2.5 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-2.5">
+          <i class="fas fa-building text-indigo-400 text-sm flex-shrink-0"></i>
+          <p id="detail-instansi" class="text-sm font-bold text-indigo-800"></p>
+        </div>
+      </div>
+
+      <!-- Isi Ringkasan -->
+      <div class="px-6 pt-3 pb-5">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Analisis &amp; Ringkasan Lengkap</p>
+        <div id="detail-ringkasan" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-56 overflow-y-auto"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/60 rounded-b-2xl">
+        <button onclick="closeDetailModal()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold transition">Tutup</button>
+        <button id="detail-wa-btn" class="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-xs font-extrabold transition shadow-md">
+          <i class="fab fa-whatsapp text-sm"></i> Buat Draf WA
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ═══════════════════════════ MODAL KONFIRMASI HAPUS ═══════════════════════════ -->
   <div id="hapus-modal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
     <div class="modal-card bg-white rounded-2xl shadow-2xl w-full max-w-sm border border-gray-100">
@@ -427,9 +489,10 @@
           <td class="px-5 py-4">
             <p class="text-gray-700 font-semibold text-[11px] whitespace-nowrap">${waktu}</p>
           </td>
-          <td class="px-6 py-4 max-w-xs">
-            <p class="font-bold text-gray-800 text-[13px] mb-0.5 line-clamp-1">${ringkasan}</p>
+          <td class="px-6 py-4 max-w-xs cursor-pointer group" onclick="openDetailModal(${d.id})" title="Klik untuk lihat detail lengkap">
+            <p class="font-bold text-gray-800 text-[13px] mb-0.5 line-clamp-1 group-hover:text-indigo-600 transition">${ringkasan}</p>
             <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">${ringkasan}</p>
+            <p class="text-indigo-400 text-[10px] mt-1 font-semibold opacity-0 group-hover:opacity-100 transition"><i class="fas fa-expand-alt mr-1"></i>Klik untuk detail</p>
           </td>
           <td class="px-5 py-4">
             <div class="flex items-center gap-2">
@@ -525,6 +588,51 @@
     document.getElementById('wa-modal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
+
+    // ── Modal Detail Laporan ────────────────────────────────────────────
+    // Cache data hasil fetch agar openDetailModal bisa baca tanpa request ulang
+    let _cacheData = [];
+
+    function openDetailModal(id) {
+      const d = _cacheData.find(item => item.id === id);
+      if (!d) return;
+
+      document.getElementById('detail-waktu').textContent    = d.waktu     || '-';
+      document.getElementById('detail-kategori').textContent = d.kategori  || 'Umum';
+      document.getElementById('detail-instansi').textContent = d.instansi  || 'Kantor Kelurahan';
+      document.getElementById('detail-ringkasan').textContent = d.ringkasan || '-';
+      document.getElementById('detail-urgensi').innerHTML    = badgeUrgensi(d.urgensi);
+
+      // Tombol Buat Draf WA di dalam modal detail
+      const waBtn = document.getElementById('detail-wa-btn');
+      waBtn.onclick = () => {
+        closeDetailModal();
+        const draf = d.draf_pesan && d.draf_pesan !== '-' ? d.draf_pesan : null;
+        openModal(
+          d.instansi  || 'Kantor Kelurahan',
+          d.ringkasan || '-',
+          draf        || '-'
+        );
+      };
+
+      document.getElementById('detail-modal').classList.remove('hidden');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+    }
+
+    // Tutup modal detail jika klik backdrop
+    document.getElementById('detail-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeDetailModal();
+    });
+
+    // ── Patch renderTabel agar cache selalu terisi ──────────────────────
+    const _renderTabelAsli = renderTabel;
+    renderTabel = function(data) {
+      _cacheData = data || [];
+      _renderTabelAsli(data);
+    };
 
     // ── Modal Hapus ─────────────────────────────────────────────────────
     let _hapusId = null;
