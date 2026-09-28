@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
 import datetime
-import json
 
 app = Flask(__name__)
 CORS(app)  # Mengizinkan Dashboard HTML menarik data
@@ -32,15 +31,6 @@ def init_db():
 
 
 def parse_payload():
-    """
-    Mencoba membaca payload dari request dalam berbagai format:
-    1. JSON via Content-Type: application/json
-    2. JSON yang dikirim sebagai teks biasa (dicoba di-parse)
-    3. Form data (application/x-www-form-urlencoded)
-    4. Teks bebas — seluruhnya masuk ke kolom 'ringkasan'
-
-    Selalu mengembalikan dict dengan kunci yang lengkap, tidak pernah None.
-    """
     DEFAULT = {
         "ringkasan": "-",
         "kategori": "Umum",
@@ -49,53 +39,40 @@ def parse_payload():
         "draf_pesan": "-",
     }
 
-    # --- Coba baca sebagai JSON terlebih dahulu ---
     try:
-        data = request.get_json(force=True, silent=True)
-        if isinstance(data, dict) and data:
-            # Tangani jika nilai-nilai di dalam dict adalah None
-            hasil = DEFAULT.copy()
-            for key in DEFAULT:
-                if data.get(key) not in (None, ""):
-                    hasil[key] = str(data[key])
-            return hasil
-    except Exception:
-        pass
+        # 1. Cek apakah ada data JSON standar dari Key-Value Langflow
+        if request.is_json:
+            content = request.get_json(silent=True)
+            if isinstance(content, dict):
+                hasil = DEFAULT.copy()
+                # Cari berbagai kemungkinan nama key dari Langflow
+                for k in ["ringkasan", "text", "message", "input", "data"]:
+                    if content.get(k):
+                        hasil["ringkasan"] = str(content[k])
+                        break
+                # Ambil field lain jika ada
+                for key in ["kategori", "urgensi", "instansi", "draf_pesan"]:
+                    if content.get(key):
+                        hasil[key] = str(content[key])
+                return hasil
 
-    # --- Coba baca body sebagai teks, lalu parse JSON secara manual ---
-    raw = ""
-    try:
+        # 2. Baca sebagai teks mentah / form data jika dikirim langsung
         raw = request.get_data(as_text=True).strip()
         if raw:
-            parsed = json.loads(raw)
-            if isinstance(parsed, dict):
-                hasil = DEFAULT.copy()
-                for key in DEFAULT:
-                    if parsed.get(key) not in (None, ""):
-                        hasil[key] = str(parsed[key])
-                return hasil
-            # JSON valid tapi bukan dict (misal: list atau string)
-            return {**DEFAULT, "ringkasan": raw}
-    except json.JSONDecodeError:
-        # Bukan JSON — perlakukan sebagai teks bebas
-        if raw:
-            return {**DEFAULT, "ringkasan": raw}
-    except Exception:
-        pass
+            # Jika ada key 'ringkasan=' atau bentuk form-urlencoded
+            if "ringkasan=" in raw or "text=" in raw:
+                from urllib.parse import parse_qs
+                parsed_form = parse_qs(raw)
+                for k in ["ringkasan", "text"]:
+                    if k in parsed_form and parsed_form[k][0]:
+                        return {**DEFAULT, "ringkasan": parsed_form[k][0]}
 
-    # --- Coba baca dari form data ---
-    try:
-        if request.form:
-            hasil = DEFAULT.copy()
-            for key in DEFAULT:
-                val = request.form.get(key, "").strip()
-                if val:
-                    hasil[key] = val
-            return hasil
-    except Exception:
-        pass
+            # Jika benar-benar murni teks bebas
+            return {**DEFAULT, "ringkasan": raw}
 
-    # --- Fallback: kembalikan nilai default ---
+    except Exception as e:
+        print(f"Error parse_payload: {e}")
+
     return DEFAULT
 
 
