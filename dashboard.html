@@ -475,12 +475,19 @@
 
       data.forEach((d, i) => {
         const nomorUrut = String(i + 1).padStart(2, '0');
-        const ikon = ikonKategori(d.kategori);
-        const ringkasan = escape(d.ringkasan || '-');
-        const kategori  = escape(d.kategori  || 'Umum');
-        const instansi  = escape(d.instansi  || 'Kantor Kelurahan');
-        const draf      = escape(d.draf_pesan|| '-');
-        const waktu     = escape(d.waktu     || '-');
+        const ikon      = ikonKategori(d.kategori);
+
+        // Nilai mentah untuk ditampilkan sebagai teks (textContent) — aman dari XSS
+        const rawRingkasan = d.ringkasan || '-';
+        const rawKategori  = d.kategori  || 'Umum';
+        const rawInstansi  = d.instansi  || 'Kantor Kelurahan';
+        const rawWaktu     = d.waktu     || '-';
+
+        // Nilai yang masuk ke innerHTML harus di-escape
+        const ringkasan = escape(rawRingkasan);
+        const kategori  = escape(rawKategori);
+        const instansi  = escape(rawInstansi);
+        const waktu     = escape(rawWaktu);
 
         const tr = document.createElement('tr');
         tr.className = 'tbl-row';
@@ -489,7 +496,7 @@
           <td class="px-5 py-4">
             <p class="text-gray-700 font-semibold text-[11px] whitespace-nowrap">${waktu}</p>
           </td>
-          <td class="px-6 py-4 max-w-xs cursor-pointer group" onclick="openDetailModal(${d.id})" title="Klik untuk lihat detail lengkap">
+          <td class="px-6 py-4 max-w-xs cursor-pointer group" data-detail-id="${d.id}" title="Klik untuk lihat detail lengkap">
             <p class="font-bold text-gray-800 text-[13px] mb-0.5 line-clamp-1 group-hover:text-indigo-600 transition">${ringkasan}</p>
             <p class="text-gray-400 text-xs leading-relaxed line-clamp-2">${ringkasan}</p>
             <p class="text-indigo-400 text-[10px] mt-1 font-semibold opacity-0 group-hover:opacity-100 transition"><i class="fas fa-expand-alt mr-1"></i>Klik untuk detail</p>
@@ -508,19 +515,34 @@
           </td>
           <td class="px-5 py-4 text-center">
             <div class="flex items-center justify-center gap-2">
-              <button
-                onclick="openModal('${instansi.replace(/'/g,"\\'")}', '${ringkasan.replace(/'/g,"\\'")}', '${draf.replace(/'/g,"\\'")}')"
+              <button data-wa-id="${d.id}"
                 class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-3 rounded-xl text-xs transition shadow-sm inline-flex items-center gap-1.5 whitespace-nowrap">
                 <i class="fab fa-whatsapp text-sm"></i> Draf WA
               </button>
-              <button
-                onclick="konfirmasiHapus(${d.id}, '${ringkasan.replace(/'/g,"\\'").substring(0, 40)}')"
+              <button data-hapus-id="${d.id}"
                 class="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 active:scale-95 text-red-400 hover:text-red-600 border border-red-100 hover:border-red-300 flex items-center justify-center transition flex-shrink-0"
                 title="Hapus laporan ini">
                 <i class="fas fa-trash-alt text-xs"></i>
               </button>
             </div>
           </td>`;
+
+        // ── Event listeners terikat ke elemen DOM, bukan onclick string ──
+        // Tombol Draf WA
+        tr.querySelector('[data-wa-id]').addEventListener('click', () => {
+          openModal(rawInstansi, rawRingkasan, d.draf_pesan || '-');
+        });
+
+        // Tombol Hapus
+        tr.querySelector('[data-hapus-id]').addEventListener('click', () => {
+          konfirmasiHapus(d.id, rawRingkasan.substring(0, 40));
+        });
+
+        // Kolom Ringkasan (buka detail)
+        tr.querySelector('[data-detail-id]').addEventListener('click', () => {
+          openDetailModal(d.id);
+        });
+
         tbody.appendChild(tr);
       });
     }
